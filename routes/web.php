@@ -23,5 +23,7 @@ $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('places/nearby/','PlacesController@getNearBy');
     $router->get('places/find/','PlacesController@findPlaces');
 
+    $router->get('cities/','CityController@getCities');
+
     $router->get('email/test/','EmailController@getTestEmail');
 });
