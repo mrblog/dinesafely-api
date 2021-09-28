@@ -18,13 +18,13 @@ class PlacesController extends Controller
         foreach ($placesResults as $place) {
             $placeIds[] = "'".$place->place_id."'";
         }
-        //error_log("scoredResults placeIds: ".print_r($placeIds, true));
+        //error_log("scoredResults placeIds: ".var_export($placeIds, true));
 
         /*$scores = app('db')->select("SELECT place_id,AVG(staff_masks) AS staff_masks,
                    AVG(customer_masks) AS customer_masks,
                    AVG(vaccine) AS vaccine,
                    AVG(rating) FROM place_score WHERE place_id=? AND published=1");*/
-        $query = "SELECT * FROM place_score WHERE place_id IN (".implode(",",$placeIds).") AND published=1";
+        $query = "SELECT * FROM place_score WHERE place_id IN (".implode(",",$placeIds).")";
         //error_log("scoredResults query: ".$query);
         $scores = app('db')->select($query);
         foreach ($placesResults as $place) {
@@ -63,7 +63,7 @@ class PlacesController extends Controller
                 } else if (property_exists($rawResults, "candidates")) {
                     $placesResults = $rawResults->candidates;
                 } else {
-                    error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
+                    error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
                     return $this->generateErrorResponse("No candidates or results", 500);
                 }
                 $results = $this->scoredResults($placesResults);
@@ -78,7 +78,7 @@ class PlacesController extends Controller
                 $results = $rankBy->places();*/
                 return $this->generateSuccessResponse($results);
             } else {
-                error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
+                error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
                 $msg = $rawResults->status;
                 if (property_exists($rawResults,"error_message")) {
                     $msg = $rawResults->status.": ".$rawResults->error_message;
@@ -86,7 +86,7 @@ class PlacesController extends Controller
                 return $this->generateErrorResponse($msg, 500);
             }
         } else {
-            error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
+            error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
             return $this->generateErrorResponse("Unexpected places response", 500);
         }
     }
@@ -137,5 +137,6 @@ class PlacesController extends Controller
         $rawResults = json_decode($response);
         return $this->handlePlacesResponse($rawResults);
     }
+
 }
 

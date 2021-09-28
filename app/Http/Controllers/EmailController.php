@@ -13,8 +13,8 @@ class EmailController extends Controller
     {
         $data = ['message' => 'This is a test!'];
 
-        Mail::to('mrblogdotorg@gmail.com')->send(new TestEmail($data));
+        $result = Mail::to(env(DEBUG_EMAIL, 'mrblogdotorg@gmail.com'))->send(new TestEmail($data));
 
-        return $this->generateSuccessResponse([]);
+        return $this->generateSuccessResponse($result);
     }
 }

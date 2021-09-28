@@ -19,6 +19,7 @@ $router->get('/', function () use ($router) {
 
 $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('scores/','ScoreController@getAllScores');
+    $router->post('place/score/','ScoreController@postScore');
 
     $router->get('places/nearby/','PlacesController@getNearBy');
     $router->get('places/find/','PlacesController@findPlaces');
@@ -26,4 +27,5 @@ $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('cities/','CityController@getCities');
 
     $router->get('email/test/','EmailController@getTestEmail');
+
 });

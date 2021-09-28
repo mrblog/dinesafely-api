@@ -32,6 +32,7 @@ class TestEmail extends Mailable
             ->subject($subject)
             ->with([ 'test_message' => $this->data['message'] ]);*/
         return $this->view('emails.test')
+            ->text('emails.test_plain')
             ->from($address, $name)
             ->subject($subject)
             ->with([ 'test_message' => $this->data['message'] ]);

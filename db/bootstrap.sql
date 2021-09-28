@@ -9,18 +9,24 @@ CREATE TABLE IF NOT EXISTS place_score
     customer_masks TINYINT      NOT NULL DEFAULT 0,
     vaccine        TINYINT      NOT NULL DEFAULT 0,
     rating         INT(2)       NOT NULL DEFAULT 0,
-    published      TINYINT      NOT NULL DEFAULT 0,
+    createdAt      TIMESTAMP,
 
     PRIMARY KEY (id),
     UNIQUE user_place (user_id, place_id)
 );
 
-CREATE TABLE IF NOT EXISTS user
+CREATE TABLE IF NOT EXISTS pending_score
 (
-    user_id VARCHAR(255) NOT NULL,
-    token   VARCHAR(255) NOT NULL,
+    token          VARCHAR(255) NOT NULL,
+    user_id        VARCHAR(255) NOT NULL,
+    place_id       VARCHAR(255) NOT NULL,
+    staff_masks    TINYINT      NOT NULL DEFAULT 0,
+    customer_masks TINYINT      NOT NULL DEFAULT 0,
+    vaccine        TINYINT      NOT NULL DEFAULT 0,
+    rating         INT(2)       NOT NULL DEFAULT 0,
+    createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (token)
 );
 
 CREATE TABLE IF NOT EXISTS city
