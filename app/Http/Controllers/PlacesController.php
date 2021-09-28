@@ -58,7 +58,14 @@ class PlacesController extends Controller
     private function handlePlacesResponse($rawResults) {
         if (property_exists($rawResults, "status")) {
             if ($rawResults->status == "OK") {
-                $placesResults = $rawResults->results;
+                if (property_exists($rawResults, "results")) {
+                    $placesResults = $rawResults->results;
+                } else if (property_exists($rawResults, "candidates")) {
+                    $placesResults = $rawResults->candidates;
+                } else {
+                    error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
+                    return $this->generateErrorResponse("No candidates or results", 500);
+                }
                 $results = $this->scoredResults($placesResults);
 
                 /*error_log("getNearBy apiKey: ".\GooglePlace\Request::$api_key);
@@ -71,6 +78,7 @@ class PlacesController extends Controller
                 $results = $rankBy->places();*/
                 return $this->generateSuccessResponse($results);
             } else {
+                error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
                 $msg = $rawResults->status;
                 if (property_exists($rawResults,"error_message")) {
                     $msg = $rawResults->status.": ".$rawResults->error_message;
@@ -78,6 +86,7 @@ class PlacesController extends Controller
                 return $this->generateErrorResponse($msg, 500);
             }
         } else {
+            error_log("handlePlacesResponse rawResults:".print_r($rawResults, true));
             return $this->generateErrorResponse("Unexpected places response", 500);
         }
     }
@@ -112,9 +121,10 @@ class PlacesController extends Controller
         }
         $location = $request->get("location");
         $radius = 10000;
-        $fields = "formatted_address,icon,name,place_id,type,vicinity";
+        $fields = "formatted_address,icon,name,place_id,type";
         $key = env("GOOGLE_API_KEY");
-        $url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=".urlencode($input)."inputtype=textquery&locationbias=".urlencode("circle:".$radius."@".$location)."&fields=".$fields."&key=".$key;
+        $url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=".urlencode($input)."&inputtype=textquery&locationbias=".urlencode("circle:".$radius."@".$location)."&fields=".urlencode($fields)."&key=".$key;
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
