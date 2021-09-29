@@ -20,6 +20,7 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('scores/','ScoreController@getAllScores');
     $router->post('place/score/','ScoreController@postScore');
+    $router->put('place/score/token/{token}','ScoreController@confirmScore');
 
     $router->get('places/nearby/','PlacesController@getNearBy');
     $router->get('places/find/','PlacesController@findPlaces');

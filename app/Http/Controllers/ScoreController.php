@@ -68,4 +68,34 @@ class ScoreController extends Controller {
         }
         return $this->generateSuccessResponse($results);
     }
+
+    public function confirmScore(Request $request, $token)
+    {
+
+        $results = app('db')->select("SELECT * FROM pending_score WHERE token = ?", [$token]);
+        if (count($results) == 0) {
+            return $this->generateErrorResponse("Invalid token");
+        }
+
+        $row = $results[0];
+
+        app('db')->delete("DELETE FROM place_score WHERE user_id = ? AND place_id = ?",
+            [$row->user_id, $row->place_id]
+        );
+
+        app('db')->insert("INSERT INTO place_score (user_id,place_id,staff_masks,customer_masks,vaccine,rating) VALUES (?,?,?,?,?,?)",
+            [
+                $row->user_id,
+                $row->place_id,
+                $row->staff_masks,
+                $row->customer_masks,
+                $row->vaccine,
+                $row->rating,
+            ]
+        );
+        app('db')->delete("DELETE FROM pending_score WHERE token = ?", [$token]);
+
+        $results = new \stdClass();
+        return $this->generateSuccessResponse($results);
+    }
 }
