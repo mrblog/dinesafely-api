@@ -32,29 +32,31 @@ class PlacesController extends Controller
             $customer_masks = 0.;
             $vaccine = 0.;
             $rating = 0.;
-            $hasScores = false;
+            $count = 0;
             foreach ($scores as $score) {
                 if ($score->place_id == $place->place_id) {
                     $staff_masks += $score->staff_masks;
                     $customer_masks += $score->customer_masks;
                     $vaccine += $score->vaccine;
                     $rating += $score->rating;
-                    $hasScores = true;
+                    $count++;
                 }
             }
             $outPlace = $place;
-            if ($hasScores) {
+            if ($count > 0) {
                 $outPlace->scores = [
                     'staff_masks' => $staff_masks,
                     'customer_masks' => $customer_masks,
                     'vaccine' => $vaccine,
-                    'rating' => $rating
+                    'rating' => $rating,
+                    'count' => $count
                 ];
             }
             $results[] = $outPlace;
         }
         return $results;
     }
+    
     private function handlePlacesResponse($rawResults) {
         if (property_exists($rawResults, "status")) {
             if ($rawResults->status == "OK") {
