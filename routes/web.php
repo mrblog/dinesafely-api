@@ -28,5 +28,6 @@ $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('cities/','CityController@getCities');
 
     $router->get('email/test/','EmailController@getTestEmail');
+    $router->get('email/confirm/','EmailController@sendTestConfirmationEmail');
 
 });

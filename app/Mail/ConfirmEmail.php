@@ -22,9 +22,10 @@ class ConfirmEmail extends Mailable
     public function build()
     {
         error_log("ConfirmEmail data:".var_export($this->data, true));
-        $address = 'covidscore@bdt.com';
-        $subject = 'Complete your covid score submission: '.$this->data['name'];
-        $name = 'Covid Score';
+        $address = env("MAIL_FROM_ADDRESS",'covidscore@bdt.com');
+        $name = env('MAIL_FROM_NAME','Dine Safely');
+        $app_name = env('APP_NAME', 'Dine Safely');
+        $subject = 'Complete your '. $app_name . ' submission: '.$this->data['name'];
 
         return $this->view('emails.confirm')
             ->text('emails.confirm_plain')

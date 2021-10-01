@@ -2,14 +2,19 @@ USE covidscore;
 
 CREATE TABLE IF NOT EXISTS place_score
 (
-    id             INT          NOT NULL AUTO_INCREMENT,
-    user_id        VARCHAR(255) NOT NULL,
-    place_id       VARCHAR(255) NOT NULL,
-    staff_masks    TINYINT      NOT NULL DEFAULT 0,
-    customer_masks TINYINT      NOT NULL DEFAULT 0,
-    vaccine        TINYINT      NOT NULL DEFAULT 0,
-    rating         INT(2)       NOT NULL DEFAULT 0,
-    createdAt      TIMESTAMP,
+    id              INT          NOT NULL AUTO_INCREMENT,
+    user_id         VARCHAR(255) NOT NULL,
+    user_handle     VARCHAR(255) NOT NULL,
+    place_id        VARCHAR(255) NOT NULL,
+    staff_masks     TINYINT      NOT NULL DEFAULT 0,
+    customer_masks  TINYINT      NOT NULL DEFAULT 0,
+    outdoor_seating TINYINT      NOT NULL DEFAULT 0,
+    vaccine         TINYINT      NOT NULL DEFAULT 0,
+    rating          INT(2)       NOT NULL DEFAULT 0,
+    is_affiliated   TINYINT      NOT NULL DEFAULT 0,
+    notes           TEXT         NOT NULL,
+    created_at      TIMESTAMP,
+    published_at    TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
     UNIQUE user_place (user_id, place_id)
@@ -17,14 +22,18 @@ CREATE TABLE IF NOT EXISTS place_score
 
 CREATE TABLE IF NOT EXISTS pending_score
 (
-    token          VARCHAR(255) NOT NULL,
-    user_id        VARCHAR(255) NOT NULL,
-    place_id       VARCHAR(255) NOT NULL,
-    staff_masks    TINYINT      NOT NULL DEFAULT 0,
-    customer_masks TINYINT      NOT NULL DEFAULT 0,
-    vaccine        TINYINT      NOT NULL DEFAULT 0,
-    rating         INT(2)       NOT NULL DEFAULT 0,
-    createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    token           VARCHAR(255) NOT NULL,
+    user_id         VARCHAR(255) NOT NULL,
+    user_handle     VARCHAR(255) NOT NULL,
+    place_id        VARCHAR(255) NOT NULL,
+    staff_masks     TINYINT      NOT NULL DEFAULT 0,
+    customer_masks  TINYINT      NOT NULL DEFAULT 0,
+    vaccine         TINYINT      NOT NULL DEFAULT 0,
+    outdoor_seating TINYINT      NOT NULL DEFAULT 0,
+    rating          INT(2)       NOT NULL DEFAULT 0,
+    is_affiliated   TINYINT      NOT NULL DEFAULT 0,
+    notes           TEXT         NOT NULL,
+    created_at      TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (token)
 );

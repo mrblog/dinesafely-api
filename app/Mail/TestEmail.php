@@ -20,9 +20,9 @@ class TestEmail extends Mailable
 
     public function build()
     {
-        $address = 'covidscore@bdt.com';
+        $address = env("MAIL_FROM_ADDRESS",'covidscore@bdt.com');
+        $name = env('MAIL_FROM_NAME','Dine Safely');
         $subject = 'This is a demo!';
-        $name = 'Covid Score';
 
         /*return $this->view('emails.test')
             ->from($address, $name)
