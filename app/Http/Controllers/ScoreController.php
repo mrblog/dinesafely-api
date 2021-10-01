@@ -107,6 +107,8 @@ class ScoreController extends Controller {
         );
         app('db')->delete("DELETE FROM pending_score WHERE token = ?", [$token]);
 
+        app('db')->delete("DELETE FROM pending_score WHERE user_id = ? AND place_id = ?", [$row->user_id, $row->place_id]);
+
         $results = new \stdClass();
         return $this->generateSuccessResponse($results);
     }

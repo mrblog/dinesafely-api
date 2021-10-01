@@ -10,6 +10,6 @@ If not clickable, please copy and paste the address to your browser:<br>
 <a href="{{ $site_base_url }}/confirm/{{ $token }}">{{ $site_base_url }}/confirm/{{ $token }}</a><br>
 <br>
 <br>
-Thanks for using COVID score!
+Thanks for using Dine Safely!
 </body>
 </html>

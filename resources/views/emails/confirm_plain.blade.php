@@ -2,10 +2,10 @@ IMPORTANT - FURTHER ACTION IS REQUIRED TO COMPLETE YOUR COVID SCORE SUBMISSION !
 
 FOLLOW THE WEB ADDRESS BELOW TO PUBLISH YOUR COVID SCORE SUBMISSION
 
-If not clickable, please copy and paste the address to your browser:<br>
+If not clickable, please copy and paste the address to your browser:
 
 THIS LINK IS A ONE-TIME PASSWORD.  DO NOT SHARE IT.
 
 {{ $site_base_url }}/confirm/{{ $token }}
 
-Thanks for using COVID score!
+Thanks for using Dine Safely!
