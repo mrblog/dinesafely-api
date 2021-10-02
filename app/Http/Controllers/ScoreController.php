@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\ScoreConstants;
 use App\Mail\ConfirmEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -22,46 +23,47 @@ class ScoreController extends Controller {
     public function postScore(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'handle' => 'required',
-            'place_id' => 'required',
-            'name' => 'required',
-            'staff_masks' => 'required',
-            'customer_masks' => 'required',
-            'outdoor_seating' => 'required',
-            'vaccine' => 'required',
-            'rating' => 'required',
-            'is_affiliated' => 'required'
+            ScoreConstants::EMAIL => 'required',
+            ScoreConstants::HANDLE => 'required',
+            ScoreConstants::PLACE_ID => 'required',
+            ScoreConstants::NAME => 'required',
+            ScoreConstants::STAFF_MASKS => 'required',
+            ScoreConstants::CUSTOMER_MASKS => 'required',
+            ScoreConstants::OUTDOOR_SEATING => 'required',
+            ScoreConstants::VACCINE => 'required',
+            ScoreConstants::RATING => 'required',
+            ScoreConstants::IS_AFFILIATED => 'required'
         ]);
         if ($validator->fails()) {
             return $this->generateErrorResponse($validator->errors()->all()[0]);
         }
-        $email = $request->get("email");
+        $email = $request->get(ScoreConstants::EMAIL);
         $token = openssl_random_pseudo_bytes(16);
 
         $token = bin2hex($token);
 
         app('db')->delete("DELETE FROM pending_score WHERE user_id = ? AND place_id = ?",
-            [$request->get("email"), $request->get("place_id")]
+            [$request->get(ScoreConstants::EMAIL), $request->get(ScoreConstants::PLACE_ID)]
         );
 
         app('db')->insert("INSERT INTO pending_score (token,user_id,user_handle,place_id,staff_masks,customer_masks,outdoor_seating,vaccine,rating,is_affiliated,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-            [$token, $email, $request->get("handle"),
-                $request->get("place_id"),
-                $request->get("staff_masks"),
-                $request->get("customer_masks"),
-                $request->get("outdoor_seating"),
-                $request->get("vaccine"),
-                $request->get("rating"),
-                $request->get("is_affiliated"),
-                $request->get("notes")
+            [$token, $email,
+                $request->get(ScoreConstants::HANDLE),
+                $request->get(ScoreConstants::PLACE_ID),
+                $request->get(ScoreConstants::STAFF_MASKS),
+                $request->get(ScoreConstants::CUSTOMER_MASKS),
+                $request->get(ScoreConstants::OUTDOOR_SEATING),
+                $request->get(ScoreConstants::VACCINE),
+                $request->get(ScoreConstants::RATING),
+                $request->get(ScoreConstants::IS_AFFILIATED),
+                $request->get(ScoreConstants::NOTES)
             ]
         );
         $results = new \stdClass();
         $recipient = $email;
         $data = [
             'site_base_url' => env("APP_URL", "http://localhost:3000"),
-            'name' => $request->get("name"),
+            'name' => $request->get(ScoreConstants::NAME),
             'token' => $token
         ];
         if (env('APP_ENV', "local") != "production") {

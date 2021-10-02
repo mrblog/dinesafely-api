@@ -111,6 +111,9 @@ $app->alias('mailer', Illuminate\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
+$app->alias('ScoreConstants', App\Constants\ScoreConstants::class);
+$app->alias('PlaceParams', App\Constants\PlaceParams::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

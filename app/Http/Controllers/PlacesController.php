@@ -52,13 +52,13 @@ class PlacesController extends Controller
             $outPlace = $place;
             if ($count > 0) {
                 $outPlace->scores = [
-                    'staff_masks' => $staff_masks,
-                    'customer_masks' => $customer_masks,
-                    'outdoor_seating' => $outdoor_seating,
-                    'vaccine' => $vaccine,
-                    'rating' => $rating,
-                    'most_recent' => date('M d, Y', $most_recent),
-                    'count' => $count
+                    ScoreConstants::STAFF_MASKS  =>  $staff_masks,
+                    ScoreConstants::CUSTOMER_MASKS  =>  $customer_masks,
+                    ScoreConstants::OUTDOOR_SEATING  =>  $outdoor_seating,
+                    ScoreConstants::VACCINE  =>  $vaccine,
+                    ScoreConstants::RATING  =>  $rating,
+                    ScoreConstants::MOST_RECENT  =>  date('M d, Y', $most_recent),
+                    ScoreConstants::COUNT  =>  $count
                 ];
             }
             $results[] = $outPlace;
@@ -78,15 +78,6 @@ class PlacesController extends Controller
                     return $this->generateErrorResponse("No candidates or results", 500);
                 }
                 $results = $this->scoredResults($placesResults);
-
-                /*error_log("getNearBy apiKey: ".\GooglePlace\Request::$api_key);
-                $rankBy = new \GooglePlace\Services\Nearby([
-                        'location' => '37.821593,-121.999961',
-                        'radius' => '2500',
-                        'type' => 'restaurant'
-                    ]
-                );
-                $results = $rankBy->places();*/
                 return $this->generateSuccessResponse($results);
             } else {
                 error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
@@ -107,7 +98,7 @@ class PlacesController extends Controller
         /*$latitude = 37.821593;
         $longitude = -121.999961;*/
 
-        $location = $request->get("location");
+        $location = $request->get(PlaceParams::LOCATION);
         $radius = 5000;
         $type = 'restaurant';
         // $rankby = 'distance'; //this didn't work very well
@@ -128,11 +119,11 @@ class PlacesController extends Controller
     }
 
     public function findPlaces(Request $request) {
-        $input = $request->get("input");
+        $input = $request->get(PlaceParams::INPUT);
         if (empty($input)) {
             return $this->generateErrorResponse("input parameter required", 400);
         }
-        $location = $request->get("location");
+        $location = $request->get(PlaceParams::LOCATION);
         $radius = 10000;
         $type = 'restaurant';
         $key = env("GOOGLE_API_KEY");
