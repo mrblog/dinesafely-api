@@ -101,6 +101,7 @@ $app->middleware([
 // $app->register(App\Providers\EventServiceProvider::class);
 
 $app->register(Illuminate\Mail\MailServiceProvider::class);
+$app->register(App\Providers\GooglePlacesApiServiceProvider::class);
 
 $app->configure('mail');
 
@@ -112,7 +113,8 @@ $app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 $app->alias('ScoreConstants', App\Constants\ScoreConstants::class);
-$app->alias('PlaceParams', App\Constants\PlaceParams::class);
+$app->alias('PlaceParamsConstants', App\Constants\PlaceParamsConstants::class);
+
 
 /*
 |--------------------------------------------------------------------------

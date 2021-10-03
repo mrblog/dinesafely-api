@@ -2,7 +2,7 @@
 
 namespace App\Constants;
 
-class PlaceParams
+class PlaceParamsConstants
 {
     const INPUT = 'input';
     const LOCATION = 'location';

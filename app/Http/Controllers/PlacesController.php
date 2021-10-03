@@ -4,10 +4,19 @@
 namespace App\Http\Controllers;
 
 
+use App\Constants\ScoreConstants;
+use App\Constants\PlaceParamsConstants;
+use App\GooglePlacesApi\GooglePlacesApi;
 use Illuminate\Http\Request;
 
 class PlacesController extends Controller
 {
+
+    protected $placesService;
+    public function __construct(GooglePlacesApi $placesService){
+        $this->placesService = $placesService;
+    }
+
 
     private function scoredResults($placesResults) {
         if (count($placesResults) == 0) {
@@ -98,35 +107,24 @@ class PlacesController extends Controller
         /*$latitude = 37.821593;
         $longitude = -121.999961;*/
 
-        $location = $request->get(PlaceParams::LOCATION);
+        $location = $request->get(PlaceParamsConstants::LOCATION);
         $radius = 5000;
         $type = 'restaurant';
         // $rankby = 'distance'; //this didn't work very well
-        $key = env("GOOGLE_API_KEY");
-        $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" . urlencode($location) .
-            "&radius=". $radius . "&type=" . $type . "&key=" . $key;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_PROXYPORT, 3128);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $rawResults = json_decode($response);
+        $rawResults = $this->placesService->nearbySearch($location, $radius, $type);
         return $this->handlePlacesResponse($rawResults);
     }
 
     public function findPlaces(Request $request) {
-        $input = $request->get(PlaceParams::INPUT);
+        $input = $request->get(PlaceParamsConstants::INPUT);
         if (empty($input)) {
             return $this->generateErrorResponse("input parameter required", 400);
         }
-        $location = $request->get(PlaceParams::LOCATION);
+        $location = $request->get(PlaceParamsConstants::LOCATION);
         $radius = 10000;
         $type = 'restaurant';
-        $key = env("GOOGLE_API_KEY");
+        $rawResults = $this->placesService->textSearch($input, $location, $radius, $type);
+        /*$key = env("GOOGLE_API_KEY");
         $url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=".urlencode($input)."&location=" . urlencode($location) . "&radius=" . $radius ."&type=".$type."&key=".$key;
 
         $ch = curl_init();
@@ -138,7 +136,7 @@ class PlacesController extends Controller
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $rawResults = json_decode($response);
+        $rawResults = json_decode($response);*/
         return $this->handlePlacesResponse($rawResults);
     }
 
