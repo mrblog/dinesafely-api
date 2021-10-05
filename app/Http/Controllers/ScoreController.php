@@ -3,12 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Constants\ScoreConstants;
+use App\GooglePlacesApi\GooglePlacesApi;
 use App\Mail\ConfirmEmail;
+use App\Mail\ScoreReportEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ScoreController extends Controller {
+
+    protected $placesService;
+    public function __construct(GooglePlacesApi $placesService){
+        $this->placesService = $placesService;
+    }
+
+    protected function placeDetails($place_id) {
+        $rawResults = $this->placesService->placeDetails($place_id, 'place_id,formatted_address,name,icon,type');
+
+        $place_details = new \stdClass();
+        $place_details->place_name = '?';
+        $place_details->place_address = '?';
+        if (property_exists($rawResults, "status")
+            && $rawResults->status == "OK"
+            && property_exists($rawResults, "result")) {
+            $result = $rawResults->result;
+            if (property_exists($result, 'name')) {
+                $place_details->place_name = $result->name;
+            }
+            if (property_exists($result, 'formatted_address')) {
+                $place_details->place_address = $result->formatted_address;
+            }
+        }
+        return $place_details;
+    }
 
     public function getAllScores(Request $request) {
 
@@ -59,7 +86,6 @@ class ScoreController extends Controller {
                 $request->get(ScoreConstants::NOTES)
             ]
         );
-        $results = new \stdClass();
         $recipient = $email;
         $data = [
             'site_base_url' => env("APP_URL", "http://localhost:3000"),
@@ -75,6 +101,27 @@ class ScoreController extends Controller {
             error_log("sending confirmation to: ".$recipient);
             Mail::to($recipient)->send(new ConfirmEmail($data));
         }
+        $admin_email = env("ADMIN_EMAIL");
+        if (!empty($admin_email)) {
+            $place_details = $this->placeDetails($request->get(ScoreConstants::PLACE_ID));
+            $report_data = [
+                'action' => 'pending',
+                'email' => $email,
+                'name' => $request->get(ScoreConstants::HANDLE),
+                'place_id' => $request->get(ScoreConstants::PLACE_ID),
+                'place_name' => $request->get(ScoreConstants::NAME),
+                'place_address' => $place_details->place_address,
+                'rating' => $request->get(ScoreConstants::RATING),
+                'notes' => $request->get(ScoreConstants::NOTES)
+            ];
+            try {
+                Mail::to($admin_email)->send(new ScoreReportEmail($report_data));
+            }
+            catch (Exception $e) {
+                error_log("Mail Exception: ".$e->getMessage());
+            }
+        }
+        $results = new \stdClass();
         return $this->generateSuccessResponse($results);
     }
 
@@ -111,6 +158,26 @@ class ScoreController extends Controller {
 
         app('db')->delete("DELETE FROM pending_score WHERE user_id = ? AND place_id = ?", [$row->user_id, $row->place_id]);
 
+        $admin_email = env("ADMIN_EMAIL");
+        if (!empty($admin_email)) {
+            $place_details = $this->placeDetails($row->place_id);
+            $report_data = [
+                'action' => 'posted',
+                'email' => $row->user_id,
+                'name' => $row->user_handle,
+                'place_id' => $row->place_id,
+                'place_name' => $place_details->place_name,
+                'place_address' => $place_details->place_address,
+                'rating' => $row->rating,
+                'notes' => $row->notes
+            ];
+            try {
+                Mail::to($admin_email)->send(new ScoreReportEmail($report_data));
+            }
+            catch (Exception $e) {
+                error_log("Mail Exception: ".$e->getMessage());
+            }
+        }
         $results = new \stdClass();
         return $this->generateSuccessResponse($results);
     }

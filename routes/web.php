@@ -22,6 +22,8 @@ $router->group(['prefix' => 'v1/'], function ($router) {
     $router->post('place/score/','ScoreController@postScore');
     $router->put('place/score/token/{token}','ScoreController@confirmScore');
 
+    $router->get('place/{place_id}','PlacesController@placeDetails');
+
     $router->get('places/nearby/','PlacesController@getNearBy');
     $router->get('places/find/','PlacesController@findPlaces');
 

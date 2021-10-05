@@ -82,6 +82,9 @@ class PlacesController extends Controller
                     $placesResults = $rawResults->results;
                 } else if (property_exists($rawResults, "candidates")) {
                     $placesResults = $rawResults->candidates;
+                } else if (property_exists($rawResults, "result")) {
+                    $results = $this->scoredResults([$rawResults->result]);
+                    return $this->generateSuccessResponse($results[0]);
                 } else {
                     error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
                     return $this->generateErrorResponse("No candidates or results", 500);
@@ -124,21 +127,12 @@ class PlacesController extends Controller
         $radius = 10000;
         $type = 'restaurant';
         $rawResults = $this->placesService->textSearch($input, $location, $radius, $type);
-        /*$key = env("GOOGLE_API_KEY");
-        $url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=".urlencode($input)."&location=" . urlencode($location) . "&radius=" . $radius ."&type=".$type."&key=".$key;
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_PROXYPORT, 3128);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $rawResults = json_decode($response);*/
         return $this->handlePlacesResponse($rawResults);
     }
 
+    public function placeDetails(Request $request, $place_id) {
+        $rawResults = $this->placesService->placeDetails($place_id, 'place_id,formatted_address,name,icon,type');
+        return $this->handlePlacesResponse($rawResults);
+    }
 }
 
