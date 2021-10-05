@@ -47,6 +47,16 @@ class ScoreController extends Controller {
         return $this->generateSuccessResponse($results);
     }
 
+    public function getAllPendingScores(Request $request) {
+
+        //$results = DB::select("SELECT * FROM place_score");
+        $results = app('db')->select("SELECT user_id,user_handle,place_id,rating,notes FROM pending_score");
+
+        //error_log("getAllCourses params: ".var_export($request->request->all(), TRUE));
+        //error_log("getAllCourses version: ".$request->get('version'));
+        return $this->generateSuccessResponse($results);
+    }
+    
     public function postScore(Request $request)
     {
         $validator = Validator::make($request->all(), [

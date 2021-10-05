@@ -2,15 +2,25 @@
 
 namespace App\GooglePlacesApi;
 
+use Cache;
+
 class GooglePlacesApi
 {
+    const BASE_PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place';
+    const CACHE_EXPIRY = 1440; // minutes
+
     public function __construct($key) {
         $this->apiKey = $key;
     }
 
-    public function nearbySearch($location, $radius, $type) {
-        $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" . urlencode($location) .
-            "&radius=". $radius . "&type=" . $type . "&key=" . $this->apiKey;
+    private function executeApi($params, $endpoint) {
+        $cache_key = __CLASS__ . "::" . $endpoint . "::" . $params;
+        if (Cache::has($cache_key)) {
+            error_log("cache hit: " . $cache_key);
+            $value = Cache::get($cache_key);
+            return unserialize($value);
+        }
+        $url = self::BASE_PLACES_API_URL . "/". $endpoint. "/json?" . $params . "&key=" . $this->apiKey;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -19,37 +29,25 @@ class GooglePlacesApi
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         $response = curl_exec($ch);
         curl_close($ch);
+        $rawResults = json_decode($response);
+        if ($rawResults->status == "OK" || $rawResults->status == "ZERO_RESULTS") {
+            Cache::put($cache_key, serialize($rawResults), self::CACHE_EXPIRY);
+        }
+        return $rawResults;
+    }
 
-        return json_decode($response);
+    public function nearbySearch($location, $radius, $type) {
+        $params = "location=" . urlencode($location) . "&radius=". $radius . "&type=" . $type;
+        return $this->executeApi($params, 'nearbysearch');
     }
 
     public function textSearch($input, $location, $radius, $type) {
-        $url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=".urlencode($input)."&location=" . urlencode($location) . "&radius=" . $radius ."&type=".$type."&key=".$this->apiKey;
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_PROXYPORT, 3128);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($response);
+        $params = "query=".urlencode($input)."&location=" . urlencode($location) . "&radius=" . $radius ."&type=".$type;
+        return $this->executeApi($params, 'textsearch');
     }
 
     public function placeDetails($place_id, $fields) {
-        $url = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" . $place_id .
-            "&fields=". $fields . "&key=" . $this->apiKey;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_PROXYPORT, 3128);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($response);
+        $params = "place_id=" . $place_id . "&fields=". $fields;
+        return $this->executeApi($params, 'details');
     }
 }

@@ -19,6 +19,8 @@ $router->get('/', function () use ($router) {
 
 $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('scores/','ScoreController@getAllScores');
+    $router->get('scores/pending','ScoreController@getAllPendingScores');
+
     $router->post('place/score/','ScoreController@postScore');
     $router->put('place/score/token/{token}','ScoreController@confirmScore');
 
