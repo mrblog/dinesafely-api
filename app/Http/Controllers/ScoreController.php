@@ -56,7 +56,7 @@ class ScoreController extends Controller {
         //error_log("getAllCourses version: ".$request->get('version'));
         return $this->generateSuccessResponse($results);
     }
-    
+
     public function postScore(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -74,13 +74,13 @@ class ScoreController extends Controller {
         if ($validator->fails()) {
             return $this->generateErrorResponse($validator->errors()->all()[0]);
         }
-        $email = $request->get(ScoreConstants::EMAIL);
+        $email = strtolower($request->get(ScoreConstants::EMAIL));
         $token = openssl_random_pseudo_bytes(16);
 
         $token = bin2hex($token);
 
         app('db')->delete("DELETE FROM pending_score WHERE user_id = ? AND place_id = ?",
-            [$request->get(ScoreConstants::EMAIL), $request->get(ScoreConstants::PLACE_ID)]
+            [$email, $request->get(ScoreConstants::PLACE_ID)]
         );
 
         app('db')->insert("INSERT INTO pending_score (token,user_id,user_handle,place_id,staff_masks,customer_masks,outdoor_seating,vaccine,rating,is_affiliated,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
