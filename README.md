@@ -1,6 +1,7 @@
 # Dine Safely API
 
-REST API for the dinesafely.org app.
+REST API for the 
+[dinesafely.org](https://dinesafely.org) app.
 
 Built on the Lumen framework.
 
@@ -60,6 +61,7 @@ The primary changes from that baseline are listed below:
 ### Tests
 
 [tests/ScoresTest.php](tests/ScoresTest.php)  
+[tests/EmailTest.php](tests/EmailTest.php)  
 
 ### Database
 
@@ -111,12 +113,17 @@ Caching is used to minimize hits to the Google Places service.
 ### Emails
 
 The API service uses email for validation in publishing scores.
-Users provide an email address, receive an email with a one-time use link 
+Users provide an email address when posting their score and they receive an email with a one-time use link 
 to complete their submission.
 
-We use Sendgrid but you can configure any email service in the `.env` `MAIL_*` settings.
+We use Sendgrid but you can configure any email service supported by the Lumen framework in the `.env` `MAIL_*` settings.
 
-The email templates are in `resources/views/emails` and specifically 
+The email templates are in `resources/views/emails`.
+
+You can set `DEBUG_EMAIL` in `.env` to test mail sending. Normally when posting a score, the
+confirmation email is only sent if the environment is `production` but if
+`DEBUG_EMAIL` is set, a confirmation email will be sent to that email address, regardless
+of the email address of the user posting the score. This way you can test with whatever test email
+addresses when posting, but the confirmation will always be sent to your `DEBUG_EMAIL` address.
 
 See Lumen docs for more info: https://lumen.laravel.com/docs/8.x/mail
-
