@@ -67,6 +67,7 @@ The primary changes from that baseline are listed below:
 
 [db/bootstrap.sql](db/bootstrap.sql)  
 [db/testdata.sql](db/testdata.sql)  
+[db/cities.sql](db/cities.sql)  
 
 ### Configuration / getting started
 

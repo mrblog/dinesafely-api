@@ -34,4 +34,6 @@ $router->group(['prefix' => 'v1/'], function ($router) {
     $router->get('email/test/','EmailController@getTestEmail');
     $router->get('email/confirm/','EmailController@sendTestConfirmationEmail');
 
+    $router->put('admin/update/{secret}','ScoreController@addLocation');
+
 });

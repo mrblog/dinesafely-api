@@ -8,6 +8,8 @@ class ScoreConstants
     const HANDLE = 'handle';
     const PLACE_ID = 'place_id';
     const NAME = 'name';
+    const LAT = 'lat';
+    const LNG = 'lng';
     const STAFF_MASKS = 'staff_masks';
     const CUSTOMER_MASKS = 'customer_masks';
     const OUTDOOR_SEATING = 'outdoor_seating';
