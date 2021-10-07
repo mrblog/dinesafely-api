@@ -192,39 +192,4 @@ class ScoreController extends Controller {
         $results = new \stdClass();
         return $this->generateSuccessResponse($results);
     }
-
-    public function addLocation(Request $request, $secret) {
-        if ($secret != 'sheeple') {
-            return $this->generateErrorResponse("Invalid secret");
-        }
-        foreach (['pending_score', 'place_score'] as $table) {
-            $results = app('db')->select("SELECT place_id,name,lat,lng FROM ".$table." WHERE lat=0.0 OR lng=0.0");
-            foreach ($results as $row) {
-                $rawResults = $this->placesService->placeDetails($row->place_id, 'place_id,name,geometry');
-
-                /*
-                 *  "geometry": {
-            "location": {
-              "lat": 37.822015,
-              "lng": -122.000692
-            },
-                 */
-                if (property_exists($rawResults, "status")
-                    && $rawResults->status == "OK") {
-                    $place_details = $rawResults->result;
-                    app('db')->update("UPDATE ".$table." SET name = ?, lat = ?, lng = ? WHERE place_id=?", [
-                        $place_details->name,
-                        $place_details->geometry->location->lat,
-                        $place_details->geometry->location->lng,
-                        $row->place_id
-                    ]);
-                } else {
-                    return $this->generateErrorResponse("unable to update place_id: " . $row->place_id." in ".$table);
-            }
-
-            }
-        }
-        $results = new \stdClass();
-        return $this->generateSuccessResponse($results);
-    }
 }
