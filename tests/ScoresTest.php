@@ -143,12 +143,55 @@ class ScoresTest extends TestCase
         $testResult = $this->get('/v1/cities?q=dan');
         $testResult->seeStatusCode(200);
         $testResult->seeJson([
+            'success' => true,
+            'label' => 'Dana, IA'
+        ]);
+
+        $content = $testResult->response->getContent();
+        $resultContent = json_decode($content);
+        //var_export($resultContent);
+        $this->assertEquals(43, count($resultContent->data));
+
+        $testResult = $this->get('/v1/cities?q=danv');
+        $testResult->seeStatusCode(200);
+        $testResult->seeJson([
+            'success' => true,
+            'label' => 'Danville, CA'
+        ]);
+        $testResult->seeJson([
+            'label' => 'Danvers, IL'
+        ]);
+        $content = $testResult->response->getContent();
+        $resultContent = json_decode($content);
+        //var_export($resultContent);
+        $this->assertEquals(17, count($resultContent->data));
+    }
+
+    public function testNearby() {
+        $testResult = $this->get('/v1/places/nearby?location=37.821593,-121.999961');
+        $testResult->seeStatusCode(200);
+        $testResult->seeJson([
             'success' => true
         ]);
 
         $content = $testResult->response->getContent();
         $resultContent = json_decode($content);
-        var_export($resultContent);
-        $this->assertEquals(43, count($resultContent->data));
+        $this->assertTrue(count($resultContent->data) > 0);
+
+        foreach ($resultContent->data as $place) {
+            if ($place->place_id = 'ChIJz2rJsKmMj4AR-gtLy4UsnH0') {
+                $this->assertEquals("Revel Kitchen & Bar", $place->name);
+                $this->assertTrue(property_exists( $place, 'scores'));
+                $this->assertEquals(0, $place->scores->staff_masks);
+                $this->assertEquals(0, $place->scores->customer_masks);
+                $this->assertEquals(1, $place->scores->outdoor_seating);
+                $this->assertEquals(0, $place->scores->vaccine);
+                $this->assertEquals(1, $place->scores->rating);
+                $this->assertEquals("Sep 28, 2021", $place->scores->most_recent);
+                $this->assertEquals(1, $place->scores->count);
+                break;
+            }
+
+        }
     }
 }
