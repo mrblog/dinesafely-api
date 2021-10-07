@@ -61,11 +61,11 @@ class PlacesController extends Controller
             $outPlace = $place;
             if ($count > 0) {
                 $outPlace->scores = [
-                    ScoreConstants::STAFF_MASKS  =>  $staff_masks,
-                    ScoreConstants::CUSTOMER_MASKS  =>  $customer_masks,
-                    ScoreConstants::OUTDOOR_SEATING  =>  $outdoor_seating,
-                    ScoreConstants::VACCINE  =>  $vaccine,
-                    ScoreConstants::RATING  =>  $rating,
+                    ScoreConstants::STAFF_MASKS  =>  1.0 * $staff_masks / $count,
+                    ScoreConstants::CUSTOMER_MASKS  =>  1.0 * $customer_masks / $count,
+                    ScoreConstants::OUTDOOR_SEATING  =>  1.0 * $outdoor_seating / $count,
+                    ScoreConstants::VACCINE  =>  1.0 * $vaccine / $count,
+                    ScoreConstants::RATING  =>  1.0 * $rating / $count,
                     ScoreConstants::MOST_RECENT  =>  date('M d, Y', $most_recent),
                     ScoreConstants::COUNT  =>  $count
                 ];
