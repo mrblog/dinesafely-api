@@ -35,8 +35,11 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        // See: https://stackoverflow.com/questions/31273673/lumen-how-can-i-get-url-parameters-from-middleware
+        $secret = $request->route()[2]['secret'];
+        error_log("secret: ".$secret);
+        if (empty($secret) || $secret != env("ADMIN_SECRET", "secret")) {
+            return response()->json(['success' => FALSE, 'error' => 'Unauthorized.'], 401)->header('Content-Type', "application/json");
         }
 
         return $next($request);

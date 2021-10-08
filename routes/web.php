@@ -18,9 +18,6 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'v1/'], function ($router) {
-    $router->get('scores/','ScoreController@getAllScores');
-    $router->get('scores/pending','ScoreController@getAllPendingScores');
-
     $router->post('place/score/','ScoreController@postScore');
     $router->put('place/score/token/{token}','ScoreController@confirmScore');
 
@@ -31,6 +28,10 @@ $router->group(['prefix' => 'v1/'], function ($router) {
 
     $router->get('cities/','CityController@getCities');
 
-    $router->get('email/test/','EmailController@getTestEmail');
-    $router->get('email/confirm/','EmailController@sendTestConfirmationEmail');
+    $router->group(['prefix' => 'admin/', 'middleware' => ['auth']], function ($router) {
+        $router->get('scores/{secret}', 'ScoreController@getAllScores');
+        $router->get('scores/pending/{secret}', 'ScoreController@getAllPendingScores');
+        $router->get('email/test/{secret}', 'EmailController@getTestEmail');
+        $router->get('email/confirm/{secret}', 'EmailController@sendTestConfirmationEmail');
+    });
 });
