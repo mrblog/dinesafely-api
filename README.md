@@ -34,6 +34,7 @@ The primary changes from that baseline are listed below:
 [app/Constants/ScoreConstants.php](app/Constants/ScoreConstants.php)  
 [app/Providers/GooglePlacesApiServiceProvider.php](app/Providers/GooglePlacesApiServiceProvider.php)  
 [app/Http/Middleware/CorsMiddleware.php](app/Http/Middleware/CorsMiddleware.php)  
+[app/Http/Middleware/Authenticate.php](app/Http/Middleware/Authenticate.php)  
 [app/Http/Middleware/JsonRequestMiddleware.php](app/Http/Middleware/JsonRequestMiddleware.php)  
 [app/Http/Controllers/Controller.php](app/Http/Controllers/Controller.php)  
 [app/Http/Controllers/PlacesController.php](app/Http/Controllers/PlacesController.php)  
@@ -44,6 +45,7 @@ The primary changes from that baseline are listed below:
 
 ### Config:
 
+[composer.json](composer.json)  
 [bootstrap/app.php](bootstrap/app.php)  
 [routes/web.php](routes/web.php)  
 [config/mail.php](config/mail.php)  
@@ -103,7 +105,7 @@ Run tests:
 A Mysql instance is required with an empty database, default named `test_data`. 
 The `test_data` database is reset with baseline test data before each test. 
 The tests also use the Google Places API and therefore require a working Google API key.
-An Email service is not required for there tests. The tests do
+An Email service is not required for the tests. The tests do
 not actually send emails, but use the "log" mail driver.
 
 ### Google Places API
