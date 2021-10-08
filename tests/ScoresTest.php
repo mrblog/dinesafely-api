@@ -27,7 +27,7 @@ class ScoresTest extends TestCase
     }
 
     public function testGetScores() {
-        $testResult = $this->get('/v1/scores');
+        $testResult = $this->get('/v1/admin/scores/'.env("ADMIN_SECRET"));
 
         //print("get_class: ".get_class($testResult));
         //print("get_class_methods: ".var_export(get_class_methods($testResult), true));
@@ -44,7 +44,7 @@ class ScoresTest extends TestCase
     }
 
     public function testGetPendingScores() {
-        $testResult = $this->get('/v1/scores/pending');
+        $testResult = $this->get('/v1/admin/scores/pending/'.env("ADMIN_SECRET"));
 
         //print("get_class: ".get_class($testResult));
         //print("get_class_methods: ".var_export(get_class_methods($testResult), true));
@@ -58,6 +58,19 @@ class ScoresTest extends TestCase
 
         $testResult->seeJsonEquals(json_decode($expectedJson, true, 512, JSON_OBJECT_AS_ARRAY));
 
+    }
+
+    public function testGetScoresFailAuth() {
+        $testResult = $this->get('/v1/admin/scores/badboy');
+
+        //print("get_class: ".get_class($testResult));
+        //print("get_class_methods: ".var_export(get_class_methods($testResult), true));
+
+        $testResult->seeStatusCode(401);
+        $testResult->seeJson([
+            'success' => false,
+            "error" => "Unauthorized."
+        ]);
     }
 
     public function testPostScore() {
@@ -178,6 +191,7 @@ class ScoresTest extends TestCase
         $resultContent = json_decode($content);
         $this->assertTrue(count($resultContent->data) > 0);
 
+        $found = false;
         foreach ($resultContent->data as $place) {
             if ($place->place_id === 'ChIJz2rJsKmMj4AR-gtLy4UsnH0') {
                 $this->assertEquals("Revel Kitchen & Bar", $place->name);
@@ -189,9 +203,42 @@ class ScoresTest extends TestCase
                 $this->assertEquals(1, $place->scores->rating);
                 $this->assertEquals("Sep 28, 2021", $place->scores->most_recent);
                 $this->assertEquals(1, $place->scores->count);
+                $found = true;
                 break;
             }
 
         }
+        $this->AssertTrue($found);
+    }
+
+    public function testFind()
+    {
+        $testResult = $this->get('/v1/places/find?location=37.821593,-121.999961&input=bridges');
+        $testResult->seeStatusCode(200);
+        $testResult->seeJson([
+            'success' => true
+        ]);
+        $content = $testResult->response->getContent();
+        $resultContent = json_decode($content);
+        $this->assertTrue(count($resultContent->data) > 0);
+
+        $found = false;
+        foreach ($resultContent->data as $place) {
+            if ($place->place_id === 'ChIJOet126uMj4ARQL_qWEW12Jw') {
+                $this->assertEquals("Bridges", $place->name);
+                $this->assertTrue(property_exists($place, 'scores'));
+                $this->assertEquals(1, $place->scores->staff_masks);
+                $this->assertEquals(1, $place->scores->customer_masks);
+                $this->assertEquals(0, $place->scores->outdoor_seating);
+                $this->assertEquals(0, $place->scores->vaccine);
+                $this->assertEquals(2, $place->scores->rating);
+                $this->assertEquals("Sep 15, 2021", $place->scores->most_recent);
+                $this->assertEquals(1, $place->scores->count);
+                $found = true;
+                break;
+            }
+
+        }
+        $this->AssertTrue($found);
     }
 }

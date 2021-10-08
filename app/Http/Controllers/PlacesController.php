@@ -147,8 +147,8 @@ class PlacesController extends Controller
         //SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(-121.969803,37.812099)) < 8000;
         $location_parts = explode(",", $location);
         error_log("query: SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(".$location_parts[1].",".$location_parts[0].")) < ".$radius);
-        $placeIdRows = app('db')->select("SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(".$location_parts[1].",".$location_parts[0].")) < ?", [
-            $radius
+        $placeIdRows = app('db')->select("SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(?,?)) < ?", [
+            $location_parts[1],$location_parts[0], $radius
         ]);
         $placeResultsIds = array();
         foreach ($placesResults as $place) {

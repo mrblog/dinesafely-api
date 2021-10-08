@@ -21,5 +21,7 @@
         <env name="DB_PASSWORD" value="tia1"/>
         <env name="MAIL_MAILER" value="log"/>
         <env name="ADMIN_EMAIL" value="=admin@dinesafely.org"/>
+        <env name="ADMIN_SECRET" value="=test_secret"/>
+
     </php>
 </phpunit>
