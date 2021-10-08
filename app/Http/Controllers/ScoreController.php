@@ -117,8 +117,8 @@ class ScoreController extends Controller {
                 'email' => $email,
                 'name' => $request->get(ScoreConstants::HANDLE),
                 'place_id' => $request->get(ScoreConstants::PLACE_ID),
-                'name' => $request->get(ScoreConstants::NAME),
-                'formatted_address' => $place_details->formatted_address,
+                'place_name' => $request->get(ScoreConstants::NAME),
+                'place_address' => $place_details->formatted_address,
                 'rating' => $request->get(ScoreConstants::RATING),
                 'notes' => $request->get(ScoreConstants::NOTES)
             ];
@@ -177,8 +177,8 @@ class ScoreController extends Controller {
                 'email' => $row->user_id,
                 'name' => $row->user_handle,
                 'place_id' => $row->place_id,
-                'name' => $place_details->name,
-                'formatted_address' => $place_details->formatted_address,
+                'place_name' => $place_details->name,
+                'place_address' => $place_details->formatted_address,
                 'rating' => $row->rating,
                 'notes' => $row->notes
             ];

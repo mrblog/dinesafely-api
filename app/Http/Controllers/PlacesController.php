@@ -17,6 +17,19 @@ class PlacesController extends Controller
         $this->placesService = $placesService;
     }
 
+    protected function placeDetailsHelper($place_id) {
+        $rawResults = $this->placesService->placeDetails($place_id, 'place_id,formatted_address,name,geometry,icon,type');
+
+        $place_details = new \stdClass();
+        $place_details->name = '?';
+        $place_details->formatted_address = '?';
+        if (property_exists($rawResults, "status")
+            && $rawResults->status == "OK"
+            && property_exists($rawResults, "result")) {
+            $place_details = $rawResults->result;
+        }
+        return $place_details;
+    }
 
     private function scoredResults($placesResults) {
         if (count($placesResults) == 0) {
@@ -60,7 +73,7 @@ class PlacesController extends Controller
             }
             $outPlace = $place;
             if ($count > 0) {
-                $outPlace->scores = [
+                $outPlace->scores = (object) [
                     ScoreConstants::STAFF_MASKS  =>  1.0 * $staff_masks / $count,
                     ScoreConstants::CUSTOMER_MASKS  =>  1.0 * $customer_masks / $count,
                     ScoreConstants::OUTDOOR_SEATING  =>  1.0 * $outdoor_seating / $count,
@@ -75,34 +88,43 @@ class PlacesController extends Controller
         return $results;
     }
 
-    private function handlePlacesResponse($rawResults) {
+    private function processPlacesResponse($rawResults) {
         if (property_exists($rawResults, "status")) {
             if ($rawResults->status == "OK" || $rawResults->status == "ZERO_RESULTS") {
                 if (property_exists($rawResults, "results")) {
-                    $placesResults = $rawResults->results;
+                    return ['success' => TRUE, 'single' => false, 'data' => $rawResults->results];
                 } else if (property_exists($rawResults, "candidates")) {
-                    $placesResults = $rawResults->candidates;
+                    return ['success' => TRUE, 'single' => false, 'data' => $rawResults->candidates];
                 } else if (property_exists($rawResults, "result")) {
-                    $results = $this->scoredResults([$rawResults->result]);
-                    return $this->generateSuccessResponse($results[0]);
+                    return ['success' => TRUE, 'single' => true, 'data' => [$rawResults->result]];
                 } else {
-                    error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
-                    return $this->generateErrorResponse("No candidates or results", 500);
+                    error_log("processPlacesResponse rawResults:".var_export($rawResults, true));
+                    return ['success' => FALSE, 'error' => "No candidates or results"];
                 }
-                $results = $this->scoredResults($placesResults);
-                return $this->generateSuccessResponse($results);
             } else {
-                error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
+                error_log("processPlacesResponse rawResults:".var_export($rawResults, true));
                 $msg = $rawResults->status;
                 if (property_exists($rawResults,"error_message")) {
                     $msg = $rawResults->status.": ".$rawResults->error_message;
                 }
-                return $this->generateErrorResponse($msg, 500);
+                return ['success' => FALSE, 'error' => $msg];
             }
         } else {
-            error_log("handlePlacesResponse rawResults:".var_export($rawResults, true));
-            return $this->generateErrorResponse("Unexpected places response", 500);
+            error_log("processPlacesResponse rawResults:".var_export($rawResults, true));
+            return ['success' => FALSE, 'error' => "Unexpected places response"];
         }
+    }
+
+    private function handlePlacesResponse($rawResults) {
+        $results = $this->processPlacesResponse($rawResults);
+        if ($results['success']) {
+            $scoredResults = $this->scoredResults($results['data']);
+            if ($results['single'] && count($scoredResults) > 0) {
+                return $this->generateSuccessResponse($scoredResults[0]);
+            }
+            return $this->generateSuccessResponse($scoredResults);
+        }
+        $this->generateErrorResponse($results['error']);
     }
 
     public function getNearBy(Request $request) {
@@ -114,8 +136,45 @@ class PlacesController extends Controller
         $radius = 5000;
         $type = 'restaurant';
         // $rankby = 'distance'; //this didn't work very well
-        $rawResults = $this->placesService->nearbySearch($location, $radius, $type);
-        return $this->handlePlacesResponse($rawResults);
+        $placesResponse = $this->placesService->nearbySearch($location, $radius, $type);
+        $results = $this->processPlacesResponse($placesResponse);
+        $placesResults = [];
+        if ($results['success']) {
+            $placesResults = $results['data'];
+        } else {
+            $this->generateErrorResponse($results['error']);
+        }
+        //SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(-121.969803,37.812099)) < 8000;
+        $location_parts = explode(",", $location);
+        error_log("query: SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(".$location_parts[1].",".$location_parts[0].")) < ".$radius);
+        $placeIdRows = app('db')->select("SELECT DISTINCT place_id FROM place_score WHERE ST_Distance_Sphere(point(lng,lat), point(".$location_parts[1].",".$location_parts[0].")) < ?", [
+            $radius
+        ]);
+        $placeResultsIds = array();
+        foreach ($placesResults as $place) {
+            $placeResultsIds[$place->place_id] = $place;
+        }
+        $purgeIds = [];
+        $placesOutput = [];
+        foreach ($placeIdRows as $row) {
+            $purgeIds[] = $row->place_id;
+            if (array_key_exists($row->place_id, $placeResultsIds)) {
+                $placesOutput[] = $placeResultsIds[$row->place_id];
+            } else {
+                $placesOutput[] = $this->placeDetailsHelper($row->place_id);
+            }
+        }
+        $placesOutput = $this->scoredResults($placesOutput);
+        usort($placesOutput, function($a, $b) {return $b->scores->rating - $a->scores->rating;});
+        foreach ($placesResults as $place) {
+            if (!in_array($place->place_id, $purgeIds)) {
+                $placesOutput[] = $place;
+            }
+        }
+
+
+        $scoredResults = $this->scoredResults($placesOutput);
+        return $this->generateSuccessResponse($scoredResults);
     }
 
     public function findPlaces(Request $request) {

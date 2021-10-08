@@ -179,7 +179,7 @@ class ScoresTest extends TestCase
         $this->assertTrue(count($resultContent->data) > 0);
 
         foreach ($resultContent->data as $place) {
-            if ($place->place_id = 'ChIJz2rJsKmMj4AR-gtLy4UsnH0') {
+            if ($place->place_id === 'ChIJz2rJsKmMj4AR-gtLy4UsnH0') {
                 $this->assertEquals("Revel Kitchen & Bar", $place->name);
                 $this->assertTrue(property_exists( $place, 'scores'));
                 $this->assertEquals(0, $place->scores->staff_masks);
