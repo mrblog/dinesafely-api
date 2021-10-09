@@ -114,7 +114,8 @@ Run tests:
 *Note about tests:* These are really more integration tests than pure unit tests.
 A Mysql instance is required with an empty database, default named `test_data`. 
 The `test_data` database is reset with baseline test data before each test. 
-The tests also use the Google Places API and therefore require a working Google API key.
+The tests use a mock Google Places API service and therefore do not 
+require a working Google API key.
 An Email service is not required for the tests. The tests do
 not actually send emails, but use the "log" mail driver.
 
