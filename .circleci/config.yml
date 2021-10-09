@@ -12,7 +12,7 @@ jobs:
           password: $DOCKERHUB_PASSWORD
         environment:
           MYSQL_HOST: 127.0.0.1
-          MYSQL_DB: test_data
+          MYSQL_DATABASE: test_data
           MYSQL_USER: root
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_PASSWORD:
