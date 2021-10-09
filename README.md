@@ -8,7 +8,7 @@ Built on the Lumen framework.
 Uses Google Places API.
 
 This API is consumed by a React App front-end, source code at:
-https://github.com/mrblog/covidscore-app
+https://github.com/mrblog/dinesafely-app
 
 *Note:* I'm not a PHP expert. I chose PHP for this service
 because of its wide use and ease and low cost to deploy to 
