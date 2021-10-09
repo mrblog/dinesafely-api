@@ -18,7 +18,10 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'v1/'], function ($router) {
-    $router->group(['middleware' => ['referer_auth']], function ($router) {
+    $route_options = ['middleware' => ['referer_auth']];
+    if (env("APP_ENV") === "testing") {
+        $route_options = [];
+    }$router->group($route_options, function ($router) {
         $router->post('place/score/', 'ScoreController@postScore');
         $router->put('place/score/token/{token}', 'ScoreController@confirmScore');
 
