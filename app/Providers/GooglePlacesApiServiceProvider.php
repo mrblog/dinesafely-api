@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\GooglePlacesApi\GooglePlacesApi;
+use App\GooglePlacesApi\GooglePlacesApiLive;
+use App\GooglePlacesApi\GooglePlacesApiMock;
 use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
 
 class GooglePlacesApiServiceProvider extends ServiceProvider
@@ -14,8 +16,14 @@ class GooglePlacesApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(GooglePlacesApi::class, function ($app) {
-            return new GooglePlacesApi(env("GOOGLE_API_KEY"));
-        });
+        if (env("APP_ENV") === "testing") {
+            $this->app->singleton(GooglePlacesApi::class, function ($app) {
+                return new GooglePlacesApiMock();
+            });
+        } else {
+            $this->app->singleton(GooglePlacesApi::class, function ($app) {
+                return new GooglePlacesApiLive(env("GOOGLE_API_KEY"));
+            });
+        }
     }
 }
