@@ -38,7 +38,8 @@ jobs:
 
       - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
       - run: sudo apt-get install -y libpng-dev default-mysql-client libcurl4-gnutls-dev
-      - run: sudo docker-php-ext-install zip pdo pdo_mysql curl gd bcmath
+      # - run: sudo docker-php-ext-install zip pdo pdo_mysql curl gd bcmath
+      - run: sudo docker-php-ext-install zip pdo pdo_mysql curl
 
       # Download and cache dependencies
       - restore_cache:
@@ -84,4 +85,8 @@ jobs:
 
       - store_test_results:
           path: test-results
+
+      - store_artifacts:
+          path: storage/logs
+          destination: logs
 
