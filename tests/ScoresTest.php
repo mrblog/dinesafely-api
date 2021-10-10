@@ -6,8 +6,8 @@ class ScoresTest extends TestCase
 {
 
     const SCORE_POST_DATA = [
-            ScoreConstants::EMAIL => 'theunderheardpress@gmail.com',
-            ScoreConstants::HANDLE => 'Carl Johnson',
+            ScoreConstants::EMAIL => 'theunderheardpress@mail.com',
+            ScoreConstants::HANDLE => 'Carl J',
             ScoreConstants::PLACE_ID => 'ChIJOet126uMj4ARQL_qWEW12Jw',
             ScoreConstants::NAME => 'Bridges Restaurant',
             ScoreConstants::STAFF_MASKS => 1,
