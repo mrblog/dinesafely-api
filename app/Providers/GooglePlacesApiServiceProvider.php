@@ -16,7 +16,8 @@ class GooglePlacesApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if (env("APP_ENV") === "testing") {
+        $recording = (bool) env('GOOGLE_PLACES_RECORDING', false);
+        if (!$recording && env("APP_ENV") === "testing") {
             $this->app->singleton(GooglePlacesApi::class, function ($app) {
                 return new GooglePlacesApiMock();
             });

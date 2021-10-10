@@ -33,7 +33,8 @@ class GooglePlacesApiLive extends GooglePlacesApi
         if ($rawResults->status == "OK" || $rawResults->status == "ZERO_RESULTS") {
             Cache::put($cache_key, serialize($rawResults), self::CACHE_EXPIRY);
         }
-        if (env("APP_ENV") === "testing") {
+        $recording = (bool) env('GOOGLE_PLACES_RECORDING', false);
+        if ($recording) {
             $google_api_results_php = "tests/testdata/google_api_results.php";
             $google_api_results = [];
             if (file_exists($google_api_results_php)) {
